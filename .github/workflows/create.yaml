@@ -1,0 +1,52 @@
+name: Create resource
+on:
+  workflow_dispatch:
+jobs:
+  DEV:
+    runs-on: rhel_arm
+    steps:
+      - name: Import secrets hashicorp
+        uses: hashicorp/vault-action@v2.4.0
+        with:
+          url: ${{secrets.VAULT_SERVER}}
+          token: ${{secrets.VAULT_TOKEN}}
+          tlsSkipVerify: true #add to runner later /usr/local/share/ca-certificates/vault-ca.crt
+          secrets: |
+            tools/data/aws aws_user | AWS_USER;
+            tools/data/aws aws_password |AWS_PASSWORD;
+          #   # tools/data/aws vault_token |VAULT_TOKEN # give ami id on vault
+        #    tools/data/aws aws_ami_id | AWS_AMI_ID ;
+        # tools is secretengine-check api
+      - uses: actions/checkout@v4
+      - name: run terraform
+        # export TF_VAR_vault_token=${{secrets.VAULT_TOKEN}}
+        run: |
+
+          cd k8s-infra-selfmanaged;
+          terraform init -backend-config=env-dev/state.tfvars ; terraform plan -var-file=env-dev/main.tfvars;terraform apply -var-file=env-dev/main.tfvars -auto-approve
+        env:
+          TF_VAR_aws_user: ${{env.AWS_USER}}
+          TF_VAR_aws_password: ${{env.AWS_PASSWORD}}
+        #    TF_VAR_aws_ami_id: ${{env.AWS_AMI_ID}}
+
+  QA:
+    runs-on: rhel_arm
+    needs: DEV
+    environment: QA
+    steps:
+      - name: Running code on QA
+        run: echo "Code run successfully after test"
+  UAT:
+    runs-on: rhel_arm
+    needs: QA
+    environment: UAT
+    steps:
+      - name: Running code on QA
+        run: echo "Code run successfully after test"
+  PROD:
+    runs-on: rhel_arm
+    needs: UAT
+    environment: PROD
+    steps:
+      - name: Running code on QA
+        run: echo "Code run successfully and deployed"
