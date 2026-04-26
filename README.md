@@ -893,3 +893,10 @@ GitHub: [@manupanand](https://github.com/manupanand)
 ## ⚖️ Disclaimer
 
 This is a reference implementation intended for learning, demonstration, and portfolio purposes. While it follows production-grade patterns, deploying it as-is to a live environment requires additional hardening: rate limiting, WAF, formal threat model review, penetration testing, secret rotation policies, monitoring/alerting, and disaster recovery planning. Use at your own risk.
+
+
+## Architecture Diagram
+![Alt text](./images/archi.jpg)
+
+## Authentication Diagram
+![Alt text](./images/auth.jpg)
